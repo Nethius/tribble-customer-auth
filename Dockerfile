@@ -5,3 +5,4 @@ WORKDIR /trimble-auth
 COPY . .
 
 RUN make build
+

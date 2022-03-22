@@ -17,6 +17,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
@@ -38,9 +39,15 @@ func main() {
 		logger.Panic().Msgf("failed to open db connection: %v", err)
 	}
 
-	if err = db.Ping(); err != nil {
-		db.Close()
-		logger.Panic().Msgf("failed to open db connection: %v", err)
+	for i := 0; i < 5; i++ {
+		if err = db.Ping(); err != nil {
+			logger.Error().Msgf("failed to ping database %v, attempt №%v", err, i)
+			time.Sleep(time.Second * 10)
+			if i > 5 {
+				db.Close()
+				logger.Panic().Msgf("failed to ping database: %v", err)
+			}
+		}
 	}
 
 	defer db.Close()
